@@ -1,0 +1,11 @@
+{
+  "name": "taginator",
+  "description": "Creates 'tags' files for vim with jsctags aka doctorjs.",
+  "author": "hoschi <vollekannehoschi@gmail.com>",
+  "version": "0.1.0",
+  "dependencies": {
+    "express": "3.x",
+	"optimist": "~0.3"
+  },
+  "engines": { "node": "0.8.14"}
+}
