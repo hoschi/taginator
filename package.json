@@ -1,12 +1,26 @@
 {
-  "name": "taginator",
-  "description": "Creates 'tags' files for vim with jsctags aka doctorjs.",
-  "author": "hoschi <vollekannehoschi@gmail.com>",
-  "version": "0.1.0",
-  "dependencies": {
-    "express": "3.x",
-    "jade": "*",
-	"optimist": "~0.3"
-  },
-  "engines": { "node": "0.8.14"}
+	"name": "taginator",
+	"description": "Creates 'tags' files for vim with jsctags aka doctorjs.",
+	"author": {
+		"name":"Stefan Gojan",
+		"email":"vollekannehoschi@gmail.com"
+	},
+    "repository":{
+        "type":"git",
+        "url":"http://github.com/hoschi/taginator"
+    },
+    "keywords":[
+        "vim"
+    ],
+    "licence":"MIT",
+	"version": "0.1.0",
+	"dependencies": {
+		"express": "3.x",
+		"jade": "*",
+        "optimist": "~0.3"
+	},
+    "devDependencies": {
+        "nodemon": "0.7.2"
+    },
+	"engines": { "node": "~0.8.14"}
 }

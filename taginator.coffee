@@ -6,6 +6,7 @@ optimist = require 'optimist'
 
 # vars
 config = null
+configFile = '/.taginator.json'
 github = 'http://github.com/hoschi/taginator'
 
 # get user home to read project config file
@@ -40,7 +41,7 @@ app.configure ->
 try
     config = JSON.parse(
         fs.readFileSync(
-            path.normalize(getUserHome() + '/.taginator'), 'utf8'))
+            path.normalize(getUserHome() + configFile), 'utf8'))
 catch error
     errorMessage = error.toString()
 
@@ -48,7 +49,7 @@ catch error
 app.get '/', (req, res) ->
     res.render('index',
         title: 'Taginator'
-        configFile: argv.configFile
+        configFile: configFile
         projects: config
         error: errorMessage
         github: github
