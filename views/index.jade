@@ -1,0 +1,25 @@
+extends layout
+block content
+    if (error)
+        p There was a problem with your config file
+            code  ~/.taginator
+            | . Check your file or go to&nbsp;
+            a(href=github) the info page
+            |  to read more about configuration. You must restart the app after you
+            | changed your configuration file.
+        p.error= error
+    else
+        .container.projects
+            if (!projects)
+                p No projects found in
+                    code= configFile
+            else
+                each project in projects
+                    .summary.well
+                        h3= project.name
+                        p.info Working dirs are:
+                            ul
+                                each dir in project.dirs
+                                    li= dir
+
+
