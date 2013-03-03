@@ -5,7 +5,7 @@ path = require 'path'
 optimist = require 'optimist'
 
 # vars
-config = null
+projects = null
 configFile = '/.taginator.json'
 github = 'http://github.com/hoschi/taginator'
 
@@ -39,7 +39,7 @@ app.configure ->
 
 # load configs from file
 try
-    config = JSON.parse(
+    projects = JSON.parse(
         fs.readFileSync(
             path.normalize(getUserHome() + configFile), 'utf8'))
 catch error
@@ -50,7 +50,7 @@ app.get '/', (req, res) ->
     res.render('index',
         title: 'Taginator'
         configFile: configFile
-        projects: config
+        projects: projects
         error: errorMessage
         github: github
     )
