@@ -20,7 +20,8 @@
         "optimist": "~0.3",
         "fs.notify": "0.0.3",
         "consoleplusplus": "*",
-        "lodash":"~1.0.1"
+        "lodash":"~1.0.1",
+        "node-glob":"3.x"
 	},
     "devDependencies": {
     },

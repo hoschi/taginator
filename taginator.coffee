@@ -2,6 +2,7 @@
 express = require 'express'
 fs = require 'fs'
 path = require 'path'
+glob = require 'node-glob'
 optimist = require 'optimist'
 Notify = require 'fs.notify'
 _ = require 'lodash'
@@ -53,11 +54,11 @@ if !_.isArray projects
     errors.push "Parsed config files don't contain an array!"
 
 # helpers
-expandHomeDir = (dirname) ->
-    if /^~\//.test dirname
-       dirname = path.normalize(getUserHome() + dirname.slice(1))
+expandHomeDir = (globname) ->
+    if /^~\//.test globname
+       globname = path.normalize(getUserHome() + globname.slice(1))
 
-    dirname
+    globname
 
 setUp = (project) ->
     asString = JSON.stringify(project)
@@ -65,16 +66,33 @@ setUp = (project) ->
         warnings.push "Project has no 'name' set! - " + asString
         project.name = "configure name here!"
 
-    if !_.has project, 'dirs' or !_.isArray project.dirs
-        warnings.push "Project has no 'dirs' set! - " + asString
-        project.dirs = []
+    if !_.has project, 'globs' or !_.isArray project.globs
+        warnings.push "Project has no 'globs' set! - " + asString
+        project.globs = []
 
-    project.dirs = (expandHomeDir dir for dir in project.dirs)
-    console.log project.name, JSON.stringify project.dirs
+    project.globs = (expandHomeDir dir for dir in project.globs)
+    console.log project.name, JSON.stringify project.globs
 
-    notifications = new Notify project.dirs
-    notifications.on 'change', (filename) ->
-        console.log 'foo', filename
+    project.refreshNotifies = () ->
+        # mock method once, at first call there are no notifications to close
+        @notifications =
+            close: () ->
+                console.log 'called mocked close function, this is ok'
+                return
+
+        # create new method
+        @refreshNotifies = () ->
+            @notifications.close()
+            @notifications = new Notify()
+            for glob in @globs
+                for filename in glob.sync glob
+                    @notifications.add filename
+
+            @notifications.on 'change', (filename) ->
+                console.log 'foo', filename
+
+        # call new method
+        @refreshNotifies()
 
 
 # create notifies for dirs in projects
