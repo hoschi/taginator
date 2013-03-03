@@ -17,10 +17,12 @@
 	"dependencies": {
 		"express": "3.x",
 		"jade": "*",
-        "optimist": "~0.3"
+        "optimist": "~0.3",
+        "fs.notify": "0.0.3",
+        "consoleplusplus": "*",
+        "lodash":"~1.0.1"
 	},
     "devDependencies": {
-        "nodemon": "0.7.2"
     },
 	"engines": { "node": "~0.8.14"}
 }

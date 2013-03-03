@@ -3,11 +3,15 @@ express = require 'express'
 fs = require 'fs'
 path = require 'path'
 optimist = require 'optimist'
+Notify = require 'fs.notify'
+_ = require 'lodash'
 
 # vars
 projects = null
 configFile = '/.taginator.json'
 github = 'http://github.com/hoschi/taginator'
+errors = []
+warnings = []
 
 # get user home to read project config file
 getUserHome = () ->
@@ -37,24 +41,55 @@ app.configure ->
     app.use app.router
     app.use '/public', express.static(__dirname + '/public')
 
-# load configs from file
+# load configs fromcreate closures file
 try
     projects = JSON.parse(
         fs.readFileSync(
             path.normalize(getUserHome() + configFile), 'utf8'))
 catch error
-    errorMessage = error.toString()
+    errors.push error.toString()
 
-# routes
+if !_.isArray projects
+    errors.push "Parsed config files don't contain an array!"
+
+# helpers
+expandHomeDir = (dirname) ->
+    if /^~\//.test dirname
+       dirname = path.normalize(getUserHome() + dirname.slice(1))
+
+    dirname
+
+setUp = (project) ->
+    asString = JSON.stringify(project)
+    if !_.has project, 'name' or !_.isString project.name
+        warnings.push "Project has no 'name' set! - " + asString
+        project.name = "configure name here!"
+
+    if !_.has project, 'dirs' or !_.isArray project.dirs
+        warnings.push "Project has no 'dirs' set! - " + asString
+        project.dirs = []
+
+    project.dirs = (expandHomeDir dir for dir in project.dirs)
+    console.log project.name, JSON.stringify project.dirs
+
+    notifications = new Notify project.dirs
+    notifications.on 'change', (filename) ->
+        console.log 'foo', filename
+
+
+# create notifies for dirs in projects
+if errors.length <= 0
+    setUp project for project in projects
+
+# define routes
 app.get '/', (req, res) ->
-    res.render('index',
+    res.render 'index',
         title: 'Taginator'
         configFile: configFile
         projects: projects
-        error: errorMessage
+        errors: errors
+        warnings: warnings
         github: github
-    )
 
 # start server
-app.listen(argv.port, argv.domain)
-
+app.listen argv.port, argv.domain

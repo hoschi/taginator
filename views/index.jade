@@ -1,14 +1,27 @@
 extends layout
 block content
-    if (error)
-        p There was a problem with your config file
+    if (errors.length)
+        p There was a problem with your config file&nbsp;
             code= configFile
             | . Check your file or go to&nbsp;
             a(href=github) the info page
             |  to read more about configuration. You must restart the app after you
             | changed your configuration file.
-        p.error= error
-    else
+        each error in errors
+            p.error= error
+
+    if (warnings.length)
+        unless (errors.length)
+            p There was a problem with your config file&nbsp;
+                code= configFile
+                | . Check your file or go to&nbsp;
+                a(href=github) the info page
+                |  to read more about configuration. You must restart the app after you
+                | changed your configuration file.
+        each warning in warnings
+            p.warning= warning
+
+    unless (errors.length)
         h2 Configured projects:
         .container.projects
             if (!projects)
