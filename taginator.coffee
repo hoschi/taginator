@@ -53,6 +53,13 @@ catch error
 if !_.isArray projects
     errors.push "Parsed config files don't contain an array!"
 
+# TODO :
+# - add config options:
+#   - cwd to run the ctags command in
+#   - output dir for the 'tags' file
+#   - input dirs for ctags command (jsctags don't expand globs)
+# - call ctags script in cwd
+
 # helpers
 expandHomeDir = (globname) ->
     if /^~\//.test globname
@@ -88,7 +95,7 @@ setUp = (project) ->
                 console.debug "changed file in project #{@name}: ", filename
 
             @watcher.on 'error', (error) ->
-                console.info 'error', error.toString()
+                console.error error.toString()
 
         # call new method
         @refreshNotifies()
