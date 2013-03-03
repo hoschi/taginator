@@ -31,9 +31,9 @@ block content
                 each project in projects
                     .summary.well
                         h3= project.name
-                        p.info Working dirs are:
+                        p.info Found globs are:
                             ul
-                                each dir in project.dirs
-                                    li= dir
+                                each glob in project.globs
+                                    li= glob
 
 

@@ -2,10 +2,10 @@
 express = require 'express'
 fs = require 'fs'
 path = require 'path'
-glob = require 'node-glob'
 optimist = require 'optimist'
-Notify = require 'fs.notify'
+Gaze = require('gaze').Gaze
 _ = require 'lodash'
+require 'consoleplusplus'
 
 # vars
 projects = null
@@ -29,7 +29,7 @@ Read the readme file at #{github} for more information.")
     .argv
 
 console.log optimist.help()
-console.log "Starting application, open http://#{argv.domain}:#{argv.port}/ in your browser."
+console.info "Starting application, open http://#{argv.domain}:#{argv.port}/ in your browser."
 
 # configure express
 app = express()
@@ -71,29 +71,30 @@ setUp = (project) ->
         project.globs = []
 
     project.globs = (expandHomeDir dir for dir in project.globs)
-    console.log project.name, JSON.stringify project.globs
+    console.debug project.name, JSON.stringify project.globs
 
     project.refreshNotifies = () ->
         # mock method once, at first call there are no notifications to close
-        @notifications =
+        @watcher =
             close: () ->
-                console.log 'called mocked close function, this is ok'
+                console.debug 'called mocked "close" function, this is ok'
                 return
 
         # create new method
         @refreshNotifies = () ->
-            @notifications.close()
-            @notifications = new Notify()
-            for glob in @globs
-                for filename in glob.sync glob
-                    @notifications.add filename
+            @watcher.close()
+            @watcher = new Gaze @globs
+            @watcher.on 'all', (event, filename) ->
+                console.debug "changed file in project #{@name}: ", filename
 
-            @notifications.on 'change', (filename) ->
-                console.log 'foo', filename
+            @watcher.on 'error', (error) ->
+                console.info 'error', error.toString()
 
         # call new method
         @refreshNotifies()
 
+    # init notifications
+    project.refreshNotifies()
 
 # create notifies for dirs in projects
 if errors.length <= 0

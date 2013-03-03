@@ -18,10 +18,9 @@
 		"express": "3.x",
 		"jade": "*",
         "optimist": "~0.3",
-        "fs.notify": "0.0.3",
+        "gaze": "~0.3.3",
         "consoleplusplus": "*",
-        "lodash":"~1.0.1",
-        "node-glob":"3.x"
+        "lodash":"~1.0.1"
 	},
     "devDependencies": {
     },
