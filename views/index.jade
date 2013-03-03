@@ -2,7 +2,7 @@ extends layout
 block content
     if (error)
         p There was a problem with your config file
-            code  ~/.taginator
+            code= configFile
             | . Check your file or go to&nbsp;
             a(href=github) the info page
             |  to read more about configuration. You must restart the app after you
