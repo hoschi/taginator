@@ -67,8 +67,16 @@ expandHomeDir = (globname) ->
 
     globname
 
-setUp = (project) ->
+# check for user errors (users .....)
+sanitize = (project) ->
+    console.debug 'Start sanitazing project.'
     asString = JSON.stringify(project)
+    console.debug project.name, asString
+
+    if !_.has project, 'cwd' or !_.isString project.cwd
+        errors.push "Project has no 'cwd' set! - " + asString
+        return false
+
     if !_.has project, 'name' or !_.isString project.name
         warnings.push "Project has no 'name' set! - " + asString
         project.name = "configure name here!"
@@ -77,9 +85,22 @@ setUp = (project) ->
         warnings.push "Project has no 'globs' set! - " + asString
         project.globs = []
 
+    if !_.has project, 'output' or !_.isString project.output
+        warnings.push "Project has no 'output' set! - " + asString
+        project.output = '/tmp/'
+
+    if !_.has project, 'inputDirs' or !_.isArray project.inputDirs
+        warnings.push "Project has no 'inputDirs' set! - " + asString
+        project.inputDirs = []
+
     project.globs = (expandHomeDir dir for dir in project.globs)
     console.debug project.name, JSON.stringify project.globs
+    true
 
+# set project up to work
+setUp = (project) ->
+    sanity = sanitize project
+    if !sanity then continue
     project.refreshNotifies = () ->
         # mock method once, at first call there are no notifications to close
         @watcher =
