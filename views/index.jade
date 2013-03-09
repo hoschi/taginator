@@ -31,9 +31,20 @@ block content
                 each project in projects
                     .summary.well
                         h3= project.name
-                        p.info Found globs are:
+                        p The ctags programm will be called in&nbsp;
+                            code= project.cwd
+                            |  with the input directories:
+                            ul
+                                each inputDir in project.inputDirs
+                                    li
+                                        code= inputDir
+                            | and puts the generate tags in the&nbsp;
+                            code= project.output
+                            |  file.
+                        p Taginator will watch for changes of the files which match these globs:
                             ul
                                 each glob in project.globs
-                                    li= glob
+                                    li
+                                        code= glob
 
 
