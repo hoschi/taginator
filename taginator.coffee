@@ -95,18 +95,38 @@ sanitize = (project) ->
 
     true
 
-generateTags = (filename) ->
-    console.info "generating tags for project #{@name} and file: #{filename}"
+# check if generating tag action is needed and issue command
+generateTags = (filename, filesChanged) ->
+    console.debug "check if tags generation needed for project #{@name}"
+    console.debug "items: ", filesChanged, @notifiedFiles.length
+
+    # if more files are added to this array we should not generate tags yet
+    if @notifiedFiles.length isnt filesChanged
+        return
+
+    # no more new changed files added, start generating tags
+    if filesChanged > 1
+        console.info "generate all tags and refresh notifier for project #{@name}."
+        # refresh notifies because when more files changed, this is often caused by
+        # git rebase/merge or other operations which add and remove files
+        @refreshNotifies()
+    else
+        console.info "generate tags for file for project #{@name}"
+
+    # reset changed flies array for next round
+    @notifiedFiles = []
+
 
 # helper to debounce tags generating when more files changed in a short amount of time
 onFileChanged = (event, filename) ->
     console.debug "changed file in project #{@name}: ", filename
-    now = Date.now()
-    timeBetween = now - @timeOfLastChange
-    if timeBetween > 300
-        @generateTags(filename)
-        return
-        # delay tags generation and generate tags for all files
+
+    # trak how many files changed since last tags generation
+    @notifiedFiles.push filename
+    filesChanged = @notifiedFiles.length
+
+    # delay task so it can check if other files are changed in the mean time
+    _.delay(_.bind(generateTags, @, filename, filesChanged), 100)
 
 # set project up to work
 setUp = (project) ->
@@ -121,11 +141,10 @@ setUp = (project) ->
 
     # init time for debouncing tags generation
     project.timeOfLastChange = 0
+    project.notifiedFiles = []
 
     # log modified project config
     console.debug project.name, JSON.stringify project
-
-    project.generateTags = _.bind generateTags, @
 
     # set up notification function
     project.refreshNotifies = () ->
