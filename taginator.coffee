@@ -93,14 +93,18 @@ sanitize = (project) ->
         warnings.push "Project has no 'inputDirs' set! - " + asString
         project.inputDirs = []
 
+    # expand home dir string "~/"
     project.globs = (expandHomeDir dir for dir in project.globs)
-    console.debug project.name, JSON.stringify project.globs
+    project.inputDirs = (expandHomeDir dir for dir in project.inputDirs)
+    project[prop] = expandHomeDir project[prop] for prop in ['cwd', 'output']
+
+    console.debug project.name, JSON.stringify project
     true
 
 # set project up to work
 setUp = (project) ->
     sanity = sanitize project
-    if !sanity then continue
+    if !sanity then return null
     project.refreshNotifies = () ->
         # mock method once, at first call there are no notifications to close
         @watcher =
