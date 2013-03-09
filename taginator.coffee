@@ -93,19 +93,39 @@ sanitize = (project) ->
         warnings.push "Project has no 'inputDirs' set! - " + asString
         project.inputDirs = []
 
-    # expand home dir string "~/"
-    project.globs = (expandHomeDir dir for dir in project.globs)
-    project.inputDirs = (expandHomeDir dir for dir in project.inputDirs)
-    project[prop] = expandHomeDir project[prop] for prop in ['cwd', 'output']
-
-    console.debug project.name, JSON.stringify project
     true
+
+generateTags = (filename) ->
+    console.info "generating tags for project #{@name} and file: #{filename}"
+
+# helper to debounce tags generating when more files changed in a short amount of time
+onFileChanged = (event, filename) ->
+    console.debug "changed file in project #{@name}: ", filename
+    now = Date.now()
+    timeBetween = now - @timeOfLastChange
+    if timeBetween > 300
+        @generateTags(filename)
+        return
+        # delay tags generation and generate tags for all files
 
 # set project up to work
 setUp = (project) ->
     # check config
     correct = sanitize project
     if not correct then return null
+
+    # expand home dir string "~/"
+    project.globs = (expandHomeDir dir for dir in project.globs)
+    project.inputDirs = (expandHomeDir dir for dir in project.inputDirs)
+    project[prop] = expandHomeDir project[prop] for prop in ['cwd', 'output']
+
+    # init time for debouncing tags generation
+    project.timeOfLastChange = 0
+
+    # log modified project config
+    console.debug project.name, JSON.stringify project
+
+    project.generateTags = _.bind generateTags, @
 
     # set up notification function
     project.refreshNotifies = () ->
@@ -119,10 +139,11 @@ setUp = (project) ->
         @refreshNotifies = () ->
             @watcher.close()
             @watcher = new Gaze @globs
-            @watcher.on 'all', (event, filename) ->
-                console.debug "changed file in project #{@name}: ", filename
+            @watcher.on 'all',
+                _.bind onFileChanged, @
 
             @watcher.on 'error', (error) ->
+                # TODO put error to error array so it can be viewed in the frontend
                 console.error error.toString()
 
         # call new method
