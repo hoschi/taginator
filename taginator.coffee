@@ -103,8 +103,11 @@ sanitize = (project) ->
 
 # set project up to work
 setUp = (project) ->
-    sanity = sanitize project
-    if !sanity then return null
+    # check config
+    correct = sanitize project
+    if not correct then return null
+
+    # set up notification function
     project.refreshNotifies = () ->
         # mock method once, at first call there are no notifications to close
         @watcher =
@@ -129,7 +132,7 @@ setUp = (project) ->
     project.refreshNotifies()
 
 # create notifies for dirs in projects
-if errors.length <= 0
+unless errors.length
     setUp project for project in projects
 
 # define routes
