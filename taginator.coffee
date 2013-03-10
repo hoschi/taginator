@@ -149,7 +149,8 @@ regenerateTagsForFile = (filename) ->
 
     stream.on 'data', (line) ->
         line = S(line)
-        if not line.contains relativeFileName
+        # filter empty lines and lines containing tags for the current file
+        if line.contains(relativeFileName) isnt true and line.isEmpty() isnt true
             newFile.push(line)
 
     stream.on 'end', () =>
@@ -248,6 +249,9 @@ setUp = (project) ->
 
     # init notifications
     project.refreshNotifies()
+
+    # generat tags first time
+    generateAllTags.call(project)
 
 # create notifies for dirs in projects
 if errors.length
