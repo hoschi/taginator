@@ -1,9 +1,11 @@
 # dependencies
 express = require 'express'
 fs = require 'fs'
+byline  = require 'byline'
 path = require 'path'
 exec = require('child_process').exec
 optimist = require 'optimist'
+S = require 'string'
 Gaze = require('gaze').Gaze
 _ = require 'lodash'
 require 'consoleplusplus'
@@ -112,8 +114,36 @@ generateAllTags = () ->
     console.debug "run ctags command: #{cmd}"
     exec(cmd, {cwd: @cwd}, print)
 
-regenerateTagsForFile = () ->
-    # TODO call ctag command
+regenerateTagsForFile = (filename) ->
+    if not fs.existsSync(@output)
+        # generat all tags because file not exists
+        console.info "generat all tags because output file not exists in project #{@name}"
+        generateAllTags.call(@)
+        return
+
+    newFile = []
+    # callback for tags generation after current usages removed
+    appendTags = () =>
+        cmd = "ctags "
+        # add static args from config
+        cmd += "#{arg} " for arg in @ctagArgs
+        cmd += "-a "
+        cmd += "-f #{@output} "
+        cmd += filename
+        console.debug "run ctags command: #{cmd}"
+        exec(cmd, {cwd: @cwd}, print)
+
+    # remove tags first
+    relativeFileName = S(filename).replaceAll(@cwd, '')
+    console.debug "remove tags for filename #{relativeFileName} in project #{@name}"
+    #stream = byline(fs.createReadStream(@output))
+    #stream.on 'data', (line) ->
+        #if line.indexOf filename > -1
+            #console.debug "----- found tag " + line
+        #else
+            #console.debug "----- line is ok " + line
+
+
 
 # check if generating tag action is needed and issue command
 generateTags = (filename, filesChanged) ->
