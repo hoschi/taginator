@@ -53,13 +53,6 @@ catch error
 if !_.isArray projects
     errors.push "Parsed config files don't contain an array!"
 
-# TODO :
-# - add config options:
-#   - cwd to run the ctags command in
-#   - output dir for the 'tags' file
-#   - input dirs for ctags command (jsctags don't expand globs)
-# - call ctags script in cwd
-
 # helpers
 expandHomeDir = (globname) ->
     if /^~\//.test globname
@@ -93,6 +86,10 @@ sanitize = (project) ->
         warnings.push "Project has no 'inputDirs' set! - " + asString
         project.inputDirs = []
 
+    if _.has project, 'ctagArgs' and !_.isArray project.ctagArgs
+        warnings.push "Project has ctagArgs property but it isn't an array - " + asString
+        project.ctagArgs = []
+
     true
 
 # check if generating tag action is needed and issue command
@@ -107,11 +104,13 @@ generateTags = (filename, filesChanged) ->
     # no more new changed files added, start generating tags
     if filesChanged > 1
         console.info "generate all tags and refresh notifier for project #{@name}."
+        # TODO call ctag command
         # refresh notifies because when more files changed, this is often caused by
         # git rebase/merge or other operations which add and remove files
         @refreshNotifies()
     else
         console.info "generate tags for file for project #{@name}"
+        # TODO call ctag command
 
     # reset changed flies array for next round
     @notifiedFiles = []
