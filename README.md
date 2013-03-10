@@ -17,6 +17,8 @@ slashes instead of back slashes. Please read the note at the end of
 
 Using `~/` as a shortcut for your home dir is ok at OSs.
 
+The `cwd` property must have a trailing slash so it can be removed safely from found files to make them relative paths.
+
 # Development
 
 Use nodemon to automatically restart the app:

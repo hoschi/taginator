@@ -102,6 +102,13 @@ sanitize = (project) ->
     if !_.has project, 'ctagArgs'
         project.ctagArgs = []
 
+    if _.has project, 'extensions' and !_.isArray project.extensions
+        warnings.push "Project has extensions property but it isn't an array - " + asString
+        project.extensions = []
+
+    if !_.has project, 'extensions'
+        project.extensions = []
+
     true
 
 # genereate all tags and replace current file
@@ -134,7 +141,7 @@ regenerateTagsForFile = (filename) ->
         exec(cmd, {cwd: @cwd}, print)
 
     # remove tags first
-    relativeFileName = S(filename).replaceAll(@cwd, '')
+    relativeFileName = filename.replaceAll(@cwd, '')
     console.debug "remove tags for filename #{relativeFileName} in project #{@name}"
     #stream = byline(fs.createReadStream(@output))
     #stream.on 'data', (line) ->
@@ -143,6 +150,15 @@ regenerateTagsForFile = (filename) ->
         #else
             #console.debug "----- line is ok " + line
 
+# check if valid file was changed
+isValidFile = (filename) ->
+    filename = S(filename)
+    @notifiedFiles = (filename.endsWith extension for extension in @extensions)
+    if _.contains(tested, false)
+        console.debug "not a valid file to generate tags for #{filename}"
+        false
+    else
+        true
 
 
 # check if generating tag action is needed and issue command
@@ -154,15 +170,18 @@ generateTags = (filename, filesChanged) ->
     if @notifiedFiles.length isnt filesChanged
         return
 
+    @notifiedFiles = file for file in @notifiedFiles when isValidFile(@, file)
+
     # no more new changed files added, start generating tags
-    if filesChanged > 1
+    if filesChanged > 2
         console.info "generate all tags and refresh notifier for project #{@name}"
         generateAllTags.call(@)
 
         # refresh notifies because when more files changed, this is often caused by
         # git rebase/merge or other operations which add and remove files
         @refreshNotifies()
-    else
+
+    if filesChanged > 1
         console.info "generate tags for file for project #{@name}"
         regenerateTagsForFile.call(@, filename)
 
@@ -179,7 +198,7 @@ onFileChanged = (event, filename) ->
     filesChanged = @notifiedFiles.length
 
     # delay task so it can check if other files are changed in the mean time
-    _.delay(_.bind(generateTags, @, filename, filesChanged), 100)
+    _.delay(_.bind(generateTags, @, filename, filesChanged), 500)
 
 # set project up to work
 setUp = (project) ->
@@ -225,7 +244,9 @@ setUp = (project) ->
     project.refreshNotifies()
 
 # create notifies for dirs in projects
-unless errors.length
+if errors.length
+    console.error errors
+else
     setUp project for project in projects
 
 # define routes
