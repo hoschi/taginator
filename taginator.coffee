@@ -2,6 +2,7 @@
 express = require 'express'
 fs = require 'fs'
 path = require 'path'
+exec = require('child_process').exec
 optimist = require 'optimist'
 Gaze = require('gaze').Gaze
 _ = require 'lodash'
@@ -13,6 +14,12 @@ configFile = '/.taginator.json'
 github = 'http://github.com/hoschi/taginator'
 errors = []
 warnings = []
+
+# print to stdout
+print = (error, stdout, stderr) ->
+    console.info stdout if stdout
+    console.info stderr if stderr
+    console.error error if error isnt null
 
 # get user home to read project config file
 getUserHome = () ->
@@ -90,7 +97,23 @@ sanitize = (project) ->
         warnings.push "Project has ctagArgs property but it isn't an array - " + asString
         project.ctagArgs = []
 
+    if !_.has project, 'ctagArgs'
+        project.ctagArgs = []
+
     true
+
+# genereate all tags and replace current file
+generateAllTags = () ->
+    cmd = "ctags "
+    # add static args from config
+    cmd += "#{arg} " for arg in @ctagArgs
+    cmd += "-f #{@output} "
+    cmd += "#{inputDir} " for inputDir in @inputDirs
+    console.debug "run ctags command: #{cmd}"
+    exec(cmd, {cwd: @cwd}, print)
+
+regenerateTagsForFile = () ->
+    # TODO call ctag command
 
 # check if generating tag action is needed and issue command
 generateTags = (filename, filesChanged) ->
@@ -103,14 +126,15 @@ generateTags = (filename, filesChanged) ->
 
     # no more new changed files added, start generating tags
     if filesChanged > 1
-        console.info "generate all tags and refresh notifier for project #{@name}."
-        # TODO call ctag command
+        console.info "generate all tags and refresh notifier for project #{@name}"
+        generateAllTags.call(@)
+
         # refresh notifies because when more files changed, this is often caused by
         # git rebase/merge or other operations which add and remove files
         @refreshNotifies()
     else
         console.info "generate tags for file for project #{@name}"
-        # TODO call ctag command
+        regenerateTagsForFile.call(@, filename)
 
     # reset changed flies array for next round
     @notifiedFiles = []
