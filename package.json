@@ -1,6 +1,6 @@
 {
 	"name": "taginator",
-	"description": "Creates 'tags' files for vim with jsctags aka doctorjs.",
+	"description": "Creates 'tags' files for vim automatically in the background.",
 	"author": {
 		"name":"Stefan Gojan",
 		"email":"vollekannehoschi@gmail.com"
@@ -10,7 +10,10 @@
         "url":"http://github.com/hoschi/taginator"
     },
     "keywords":[
-        "vim"
+        "vim",
+		"jsctags",
+		"doctorjs",
+		"utility"
     ],
     "licence":"MIT",
 	"version": "1.0.0",

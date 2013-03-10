@@ -67,7 +67,7 @@ Properties:
 
 This project uses the library `node-glob`, so Windows users also must use forward
 slashes instead of back slashes. Please read the note at the end of
-[this site](https://github.com/isaacs/node-glob)
+[this site](https://github.com/isaacs/node-glob).
 
 Using `~/` as a shortcut for your home dir is ok at all OSs.
 
