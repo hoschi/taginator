@@ -1,6 +1,7 @@
 # dependencies
 express = require 'express'
 fs = require 'fs'
+os = require 'os'
 byline  = require 'byline'
 path = require 'path'
 exec = require('child_process').exec
@@ -128,6 +129,8 @@ regenerateTagsForFile = (filename) ->
         generateAllTags.call(@)
         return
 
+    filename = S(filename)
+    relativeFileName = filename.replaceAll(@cwd, '')
     newFile = []
     # callback for tags generation after current usages removed
     appendTags = () =>
@@ -136,30 +139,23 @@ regenerateTagsForFile = (filename) ->
         cmd += "#{arg} " for arg in @ctagArgs
         cmd += "-a "
         cmd += "-f #{@output} "
-        cmd += filename
+        cmd += relativeFileName
         console.debug "run ctags command: #{cmd}"
         exec(cmd, {cwd: @cwd}, print)
 
     # remove tags first
-    relativeFileName = filename.replaceAll(@cwd, '')
     console.debug "remove tags for filename #{relativeFileName} in project #{@name}"
-    #stream = byline(fs.createReadStream(@output))
-    #stream.on 'data', (line) ->
-        #if line.indexOf filename > -1
-            #console.debug "----- found tag " + line
-        #else
-            #console.debug "----- line is ok " + line
+    stream = byline(fs.createReadStream(@output))
 
-# check if valid file was changed
-isValidFile = (filename) ->
-    filename = S(filename)
-    @notifiedFiles = (filename.endsWith extension for extension in @extensions)
-    if _.contains(tested, false)
-        console.debug "not a valid file to generate tags for #{filename}"
-        false
-    else
-        true
+    stream.on 'data', (line) ->
+        line = S(line)
+        if not line.contains relativeFileName
+            newFile.push(line)
 
+    stream.on 'end', () =>
+        console.debug 'write tags file with removed tags'
+        newFile.push(os.EOL)
+        fs.writeFile @output, newFile.join(os.EOL), 'utf-8', _.bind appendTags, @
 
 # check if generating tag action is needed and issue command
 generateTags = (filename, filesChanged) ->
@@ -170,10 +166,20 @@ generateTags = (filename, filesChanged) ->
     if @notifiedFiles.length isnt filesChanged
         return
 
-    @notifiedFiles = file for file in @notifiedFiles when isValidFile(@, file)
+    # check if valid file was changed
+    @notifiedFiles = @notifiedFiles.filter (filename) =>
+        filename = S(filename)
+        tested = (filename.endsWith extension for extension in @extensions)
+        if _.contains(tested, false)
+            console.debug "not a valid file to generate tags for #{filename}"
+            false
+        else
+            true
+
+    console.debug @notifiedFiles.length + " valid files: " + @notifiedFiles.join(', ')
 
     # no more new changed files added, start generating tags
-    if filesChanged > 2
+    if @notifiedFiles.length > 2
         console.info "generate all tags and refresh notifier for project #{@name}"
         generateAllTags.call(@)
 
@@ -181,9 +187,9 @@ generateTags = (filename, filesChanged) ->
         # git rebase/merge or other operations which add and remove files
         @refreshNotifies()
 
-    if filesChanged > 1
+    if @notifiedFiles.length is 1
         console.info "generate tags for file for project #{@name}"
-        regenerateTagsForFile.call(@, filename)
+        regenerateTagsForFile.call(@, @notifiedFiles[0])
 
     # reset changed flies array for next round
     @notifiedFiles = []
