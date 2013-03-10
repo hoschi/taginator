@@ -5,8 +5,8 @@ path = require 'path'
 exec = require('child_process').exec
 optimist = require 'optimist'
 _ = require 'lodash'
-helper = require 'lib/helper'
-Project = require 'lib/Project'
+helper = require './lib/helper'
+Project = require './lib/Project'
 require 'consoleplusplus'
 
 # vars
