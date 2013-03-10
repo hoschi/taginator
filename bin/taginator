@@ -1,0 +1,9 @@
+#! /usr/bin/env coffee
+
+path = require('path')
+fs = require('fs')
+
+main = path.join(path.dirname(fs.realpathSync(__filename)), '..')
+require(path.join(main, 'taginator'))
+
+
