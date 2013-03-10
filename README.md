@@ -15,7 +15,7 @@ This project uses the library `node-glob`, so Windows users also must use forwar
 slashes instead of back slashes. Please read the note at the end of
 [this site](https://github.com/isaacs/node-glob)
 
-Using `~/` as a shortcut for your home dir is ok at OSs.
+Using `~/` as a shortcut for your home dir is ok at all OSs.
 
 The `cwd` property must have a trailing slash so it can be removed safely from found files to make them relative paths.
 

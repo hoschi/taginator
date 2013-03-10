@@ -41,10 +41,15 @@ block content
                             | and puts the generate tags in the&nbsp;
                             code= project.output
                             |  file.
-                        p Taginator will watch for changes of the files which match these globs:
+                        p Taginator will watch for changes of files which match these globs:
                             ul
                                 each glob in project.globs
                                     li
                                         code= glob
+                        p Only tags are generated for files which match these extensions:
+                            ul
+                                each extension in project.extensions
+                                    li
+                                        code= extension
 
 
