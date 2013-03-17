@@ -33,6 +33,7 @@ console.info "Starting application, open http://#{argv.domain}:#{argv.port}/ in 
 app = express()
 
 app.configure ->
+    # this doesn't work after publishing with npm :(
     app.set 'view', __dirname + '/views'
     app.set 'view engine', 'jade'
     app.use express.bodyParser()
@@ -63,7 +64,8 @@ else
 
 # define routes
 app.get '/', (req, res) ->
-    res.render 'index',
+    # fix for issue above :(
+    res.render __dirname + '/views/index',
         title: 'Taginator'
         configFile: configFile
         projects: projects
