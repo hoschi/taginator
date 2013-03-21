@@ -55,6 +55,7 @@ Run taginator with your config or the example config and browse to
 http://localhost:3000/ to see an explanation of your configuration.
 
 Properties:
+
 * `name` the name of the project
 * `cwd` the current working directory of your project and base path for `inputDirs`
 * `output` file path for the tags file
