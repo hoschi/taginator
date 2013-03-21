@@ -78,6 +78,10 @@ found files to make them relative paths. This config property is not optional!
 # Usage
 
 Start Taginator and let it update your tags files automatically :)
+In vim I had to set the tags file in my `~/.vimrc` the following way
+to enable jumping between tags:
+
+    set tags=tags
 
 # Development
 
