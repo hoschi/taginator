@@ -1,4 +1,6 @@
-This is Taginator, the last tags generator you need.
+# Taginator, the last tags generator you need
+
+[![NPM version](https://badge.fury.io/js/taginator.png)](http://badge.fury.io/js/taginator)
 
 Start Taginator at your system startup or user login and it generates fresh tags files
 for each of your projects. After that it watches your project for file changes and
