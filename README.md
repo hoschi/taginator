@@ -1,5 +1,7 @@
 # Taginator, the last tags generator you need
 
+[![NPM](https://nodei.co/npm-dl/taginator.png)](https://nodei.co/npm-dl/taginator/)
+
 [![NPM version](https://badge.fury.io/js/taginator.png)](http://badge.fury.io/js/taginator)
 
 Start Taginator at your system startup or user login and it generates fresh tags files
