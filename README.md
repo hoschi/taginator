@@ -92,3 +92,7 @@ to enable jumping between tags:
 Use nodemon to automatically restart the app:
 
     nodemon -e .coffee,.js,.json -w /home/YOURHOMEDIR/.taginator.json -w .  --exec coffee taginator.coffee
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/hoschi/taginator/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
