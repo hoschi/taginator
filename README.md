@@ -25,7 +25,9 @@ and generates the complete tags file again.
 
 Install [jsctags](https://github.com/mozilla/doctorjs) first, if you want to generate
 tags for JavaScript. After that put [my ctags script](https://github.com/hoschi/scripts/blob/master/ctags) into your `~/bin/` directory
-so it calls ctags or jsctags automatically.
+so it calls ctags or jsctags automatically. `jsctags` needs `node` version `0.8.26` which is pretty old.
+Check out [my ctags script](https://github.com/hoschi/scripts/blob/master/jsctags-with-nvm) handle this with
+[nvm](https://github.com/creationix/nvm).
 
 # Configuration
 
